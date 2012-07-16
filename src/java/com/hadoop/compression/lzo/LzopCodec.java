@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.compress.CodecPool;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
@@ -45,15 +47,35 @@ public class LzopCodec extends LzoCodec {
   public static final int LZOP_COMPAT_VERSION = 0x0940;
   public static final String DEFAULT_LZO_EXTENSION = ".lzo";
 
+  /**
+   * CodecPool.getCompressor() that takes conf is supported only in CDH3.
+   * The change is yet to make it to Apache Hadoop. Fall back to old
+   * getCompressor() if the new interface is not present.
+   */
+  private static boolean codecPoolSupportsConf = false;
+  static {
+    try {
+      codecPoolSupportsConf =
+        null != CodecPool.class.getMethod("getCompressor",
+                                           CompressionCodec.class,
+                                           Configuration.class);
+    } catch (Exception e) {
+    }
+  }
+
   @Override
   public CompressionOutputStream createOutputStream(OutputStream out) throws IOException {
-    return createOutputStream(out, createCompressor());
+    //get a compressor which will be returned to the pool when the output stream
+    //is closed.
+    return createOutputStream(out, getCompressor());
   }
 
   public CompressionOutputStream createIndexedOutputStream(OutputStream out,
                                                            DataOutputStream indexOut)
                                                            throws IOException {
-    return createIndexedOutputStream(out, indexOut, createCompressor());
+    //get a compressor which will be returned to the pool when the output stream
+    //is closed.
+    return createIndexedOutputStream(out, indexOut, getCompressor());
   }
 
   @Override
@@ -86,7 +108,9 @@ public class LzopCodec extends LzoCodec {
 
   @Override
   public CompressionInputStream createInputStream(InputStream in) throws IOException {
-    return createInputStream(in, createDecompressor());
+    // get a decompressor from a pool which will be returned to the pool
+    // when LzoInputStream is closed
+    return createInputStream(in, CodecPool.getDecompressor(this));
   }
 
   @Override
@@ -104,6 +128,16 @@ public class LzopCodec extends LzoCodec {
       throw new RuntimeException("native-lzo library not available");
     }
     return new LzopDecompressor(getConf().getInt(LZO_BUFFER_SIZE_KEY, DEFAULT_LZO_BUFFER_SIZE));
+  }
+
+  private Compressor getCompressor() {
+    if (codecPoolSupportsConf) {
+      return CodecPool.getCompressor(this, getConf());
+    } else {
+      // this is potentially wrong since user's configuration changes between
+      // different two instances of LzopCodec are not honored.
+      return CodecPool.getCompressor(this);
+    }
   }
 
   @Override
