@@ -76,7 +76,12 @@
     <dependency org="log4j"
       name="log4j"
       rev="${log4j.version}"
-      conf="log4j->master"/>
+      conf="common->default">
+        <exclude org="javax.mail" name="mail"/>
+        <exclude org="javax.jms" name="jms"/>
+        <exclude org="com.sun.jdmk" name="jmxtools"/>
+        <exclude org="com.sun.jmx" name="jmxri"/>
+    </dependency>
 
     <!--Configuration: test -->
 
