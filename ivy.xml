@@ -62,10 +62,6 @@
       conf="commons-logging->master"/>
 
     <dependency org="org.apache.hadoop"
-      name="hadoop-common"
-      rev="${hadoop-common.version}"
-      conf="common->default" />
-    <dependency org="org.apache.hadoop"
       name="hadoop-core"
       rev="${hadoop-core.version}"
       conf="common->default" />
