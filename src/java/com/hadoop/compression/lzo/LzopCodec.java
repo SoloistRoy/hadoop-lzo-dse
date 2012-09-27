@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.compress.CodecPool;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
@@ -47,13 +49,17 @@ public class LzopCodec extends LzoCodec {
 
   @Override
   public CompressionOutputStream createOutputStream(OutputStream out) throws IOException {
-    return createOutputStream(out, createCompressor());
+    //get a compressor which will be returned to the pool when the output stream
+    //is closed.
+    return createOutputStream(out, getCompressor());
   }
 
   public CompressionOutputStream createIndexedOutputStream(OutputStream out,
                                                            DataOutputStream indexOut)
                                                            throws IOException {
-    return createIndexedOutputStream(out, indexOut, createCompressor());
+    //get a compressor which will be returned to the pool when the output stream
+    //is closed.
+    return createIndexedOutputStream(out, indexOut, getCompressor());
   }
 
   @Override
@@ -86,7 +92,9 @@ public class LzopCodec extends LzoCodec {
 
   @Override
   public CompressionInputStream createInputStream(InputStream in) throws IOException {
-    return createInputStream(in, createDecompressor());
+    // get a decompressor from a pool which will be returned to the pool
+    // when LzoInputStream is closed
+    return createInputStream(in, CodecPool.getDecompressor(this));
   }
 
   @Override
@@ -104,6 +112,10 @@ public class LzopCodec extends LzoCodec {
       throw new RuntimeException("native-lzo library not available");
     }
     return new LzopDecompressor(getConf().getInt(LZO_BUFFER_SIZE_KEY, DEFAULT_LZO_BUFFER_SIZE));
+  }
+
+  private Compressor getCompressor() {
+    return CodecPool.getCompressor(this, getConf());
   }
 
   @Override
