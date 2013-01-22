@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+export JAVA_HOME=/usr/lib/jvm/default-java
+
+# find the required jars
+# the ivy stuff is stripped out of the build.xml in my repo, since it was causing me no
+# end of headaches and it turns out this is easier and more accurate
+export CLASSPATH:=$(shell find /usr/share/dse -name hadoop-core*.jar):$(shell find /usr/share/dse -name commons-logging-1.0.4.jar -print -quit):$(shell find /usr/share/dse -name commons-logging-api-1.0.4.jar -print -quit):
+#export CLASSPATH:=$(shell find /usr/share/dse/common -name *.jar |tr '\n' ':'):$(shell find /usr/share/dse/hadoop -name *.jar |tr '\n' ':'):
+
+override_dh_auto_build:
+	ant -f build.xml -Dcflags_extra.native="" -Ddynlink.native=true -Dnomixedjar.native=true package
+
+override_dh_makeshlibs:
+	# don't call dh_makeshlibs
+
+%:
+	dh $@ --with javahelper
+
+# vim: ts=4 sw=4 noet tw=120 softtabstop=4

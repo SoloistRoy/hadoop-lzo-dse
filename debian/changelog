@@ -1,0 +1,5 @@
+dse-libhadoop-lzo (0.4.15-1) unstable; urgency=low
+
+  * build package
+
+ -- Al Tobey <tobert@gmail.com>  Mon, 21 Jan 2013 16:04:26 -0800

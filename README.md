@@ -3,6 +3,10 @@ Hadoop-LZO
 
 Hadoop-LZO is a project to bring splittable LZO compression to Hadoop.  LZO is an ideal compression format for Hadoop due to its combination of speed and compression size.  However, LZO files are not natively splittable, meaning the parallelism that is the core of Hadoop is gone.  This project re-enables that parallelism with LZO compressed files, and also comes with standard utilities (input/output streams, etc) for working with LZO files.
 
+### This fork (tobert):
+
+This was an expedient hack to build hadoop-lzo against Datastax Enterprise. IVY has been gutted out of the build. A Debian build directory has been added.
+
 ### Origins
 
 This project builds off the great work done at [http://code.google.com/p/hadoop-gpl-compression](http://code.google.com/p/hadoop-gpl-compression).  As of issue 41, the differences in this codebase are the following.

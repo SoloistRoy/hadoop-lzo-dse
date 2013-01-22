@@ -1,0 +1,15 @@
+Source: dse-libhadoop-lzo
+Section: java
+Priority: optional
+Maintainer: Al Tobey <tobert@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), javahelper (>=0.32~), dse (>=2.2.0~), dse-libhadoop (>=2.2.0~)
+Build-Depends-Indep: default-jdk, fastjar, default-jdk-doc, ant, dse (>=2.2.0~), dse-libhadoop (>=2.2.0~)
+Standards-Version: 3.9.1
+Vcs-Git: git://github.com/tobert/hadoop-lzo-dse.git
+Vcs-Browser: https://github.com/tobert/hadoop-lzo-dse
+Homepage: http://code.google.com/a/apache-extras.org/p/hadoop-gpl-compression/
+
+Package: dse-libhadoop-lzo
+Architecture: all
+Depends: ${java:Depends}, ${misc:Depends}, dse (>=2.2.0~), dse-libhadoop (>=2.2.0~)
+Description: dse-libhadoop-lzo
